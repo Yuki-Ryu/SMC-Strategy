@@ -2,11 +2,18 @@
 // GitHub https://github.com/Yuki-Ryu/SMC-Strategy#
 
 //@version=5
-strategy("SMC Multi-Timeframe Strategy", shorttitle="SMC Strategy", overlay=true, initial_capital=1000, default_qty_type=strategy.percent_of_equity, default_qty_value=10, pyramiding=0, calc_on_every_tick=false, max_bars_back=500)
+strategy("SMC Multi-Timeframe Strategy", shorttitle="SMC Strategy", overlay=true, default_qty_type=strategy.percent_of_equity, process_orders_on_close = true, calc_on_every_tick              = true, initial_capital=1000, default_qty_value=100, pyramiding= 1, commission_type                 = strategy.commission.percent, commission_value                = 0.02, 
+         calc_bars_count                 = 20000,
+         max_bars_back=500)
+
+liqShow         = input.bool(defval = true, title = "Show Liquidity Sweep", group = "Liquidity Sweep")
+liqSweepAgg     = 10 - input.int(defval = 5, minval = 2, maxval = 8, title = "Liquidity Sweep Aggressiveness", group = "Liquidity Sweep")
+liqText         = input.bool(defval = true, title = "Liquidity Sweep Text", group = "Liquidity Sweep")
 
 // Input parameters
-mtf_trend = input.string("1D", "Trend Timeframe", options=["1D", "4H"])
-entry_tf = input.string("1H", "Entry Timeframe", options=["1H", "15min"])
+//userTF = timeframe.in_seconds(input.timeframe("", title = "Timeframe"))
+mtf_trend = input.string("1D", "Trend Timeframe", options=["1D", "4H", "1H", "15min", "Timeframe"])
+entry_tf = input.string("1H", "Entry Timeframe", options=["1D", "4H", "1H", "15min", "Timeframe"] )
 use_500_bars = input.bool(true, "Use Last 500 Bars Only", tooltip="Optimize performance by limiting historical analysis")
 
 // Limit bars for backtesting efficiency
@@ -137,7 +144,6 @@ if repaint
 // Plot liquidity zones
 plot(recent_high, "Recent High", color=color.red, linewidth=1)
 plot(recent_low, "Recent Low", color=color.green, linewidth=1)
-//hline(recent_low, "Recent Low", color=color.green, linestyle=hline.style_dashed)
 plot(repaint ? na : out + mae, 'Upper', upCss)
 plot(repaint ? na : out - mae, 'Lower', dnCss)
 
